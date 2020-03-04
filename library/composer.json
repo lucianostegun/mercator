@@ -1,0 +1,23 @@
+{
+    "require-dev": {
+        "snowair/phalcon-debugbar": "^1.2",
+        "squizlabs/php_codesniffer": "2.*"
+    },
+    "require": {
+        "aws/aws-sdk-php": "2.*",
+        "phpoffice/phpexcel": "1.*",
+        "php": "^5.2|^7.0",
+        "ext-mbstring": "*",
+        "ext-xml": "*",
+        "ext-xmlwriter": "*"
+    },
+    "recommend": {
+        "ext-zip": "*",
+        "ext-gd": "*"
+    },
+    "autoload": {
+        "psr-0": {
+            "PHPExcel": "Classes/"
+        }
+    }
+}
