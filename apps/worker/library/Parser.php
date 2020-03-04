@@ -7,8 +7,10 @@
  */
 class Parser {
 
-  const RECORD_TRADING_DATE = 'trading-date';
-  const RECORD_SWING_TRADE  = 'swing-date';
+  const RECORD_TRADING_DATE     = 'trading-date';
+  const RECORD_SWING_TRADE      = 'swing-trade';
+  const RECORD_DAY_TRADE        = 'day-trade';
+  const RECORD_FINANCIAL_DIGEST = 'financial-digest';
   
   const TRADE_TYPE_SWING_TRADE = 'swing';
   const TRADE_TYPE_DAY_TRADE   = 'day';
@@ -28,6 +30,7 @@ class Parser {
     $filePathTxt = $this->util->getFilePath('/temp/' . $fileNameTxt);
     
     $command = "/usr/local/bin/pdftotext \"$sourcePath\" \"$filePathTxt\" -layout -enc UTF-8";
+    
     @exec($command, $result, $output);
     
     if ($result == 127 || !file_exists($filePathTxt)) {
@@ -52,7 +55,12 @@ class Parser {
           break;
         case Parser::RECORD_SWING_TRADE:
           $this->readSwingTrade($line);
-//          echo "$line\n";
+          break;
+        case Parser::RECORD_DAY_TRADE:
+          $this->readDayTrade($line);
+          break;
+        case Parser::RECORD_FINANCIAL_DIGEST:
+          $this->readFinancialDigest($lineList, $key);
           break;
       }
     }
@@ -61,16 +69,40 @@ class Parser {
   public function setTradingDate($tradingDate) {
     $this->tradingDate = $this->util->formatDate($tradingDate);
   }
+
+  public function getTradingDate() {
+    return $this->tradingDate;
+  }
   
   public function addTrade($trade, $tradeType) {
     
     if (!isset($this->tradeList[$this->tradingDate])) {
-      $this->tradeList[$this->tradingDate] = array();
+      $this->tradeList[$this->tradingDate] = array(
+        'swing' => array(),
+        'day'   => array(),
+        'fees'   => array(
+          'settlementFee'   => 0,
+          'registrationFee' => 0,
+          'emoluments'      => 0,
+          'operationalFee'  => 0,
+          'executionFee'    => 0,
+          'custodyFee'      => 0,
+          'tax'             => 0,
+          'incomeTax'       => 0,
+          'otherFee'        => 0,
+        )
+      );
     }
     
-    $this->tradeList[$this->tradingDate][] = $trade;
+    if ($tradeType == Parser::TRADE_TYPE_SWING_TRADE) {
+      return;
+    }
     
-    $this->updateStockPrice($trade['stock'], $trade['quantity'], $trade['price'], $trade['exchangeType']);
+    $this->tradeList[$this->tradingDate][$tradeType][] = $trade;
+    
+    if ($tradeType == Parser::TRADE_TYPE_SWING_TRADE) {
+      $this->updateStockPrice($trade['stock'], $trade['quantity'], $trade['price'], $trade['exchangeType']);
+    }
   }
   
   private function updateStockPrice($stock, $quantity, $price, $exchangeType) {
@@ -120,6 +152,29 @@ class Parser {
     
     ksort($this->stockList);
     return $this->stockList;
+  }
+  
+  public function updateTradingFees($settlementFee, $registrationFee, $emoluments, $operationalFee, $executionFee, $custodyFee, $tax, $incomeTax, $otherFee) {
+
+    $settlementFee   = $this->util->formatFloat($settlementFee);
+    $registrationFee = $this->util->formatFloat($registrationFee);
+    $emoluments      = $this->util->formatFloat($emoluments);
+    $operationalFee  = $this->util->formatFloat($operationalFee);
+    $executionFee    = $this->util->formatFloat($executionFee);
+    $custodyFee      = $this->util->formatFloat($custodyFee);
+    $tax             = $this->util->formatFloat($tax);
+    $incomeTax       = $this->util->formatFloat($incomeTax);
+    $otherFee        = $this->util->formatFloat($otherFee);
+    
+    $this->tradeList[$this->tradingDate]['fees']['settlementFee']   = bcadd($this->tradeList[$this->tradingDate]['fees']['settlementFee'], $settlementFee, 2);
+    $this->tradeList[$this->tradingDate]['fees']['registrationFee'] = bcadd($this->tradeList[$this->tradingDate]['fees']['registrationFee'], $registrationFee, 2);
+    $this->tradeList[$this->tradingDate]['fees']['emoluments']      = bcadd($this->tradeList[$this->tradingDate]['fees']['emoluments'], $emoluments, 2);
+    $this->tradeList[$this->tradingDate]['fees']['operationalFee']  = bcadd($this->tradeList[$this->tradingDate]['fees']['operationalFee'], $operationalFee, 2);
+    $this->tradeList[$this->tradingDate]['fees']['executionFee']    = bcadd($this->tradeList[$this->tradingDate]['fees']['executionFee'], $executionFee, 2);
+    $this->tradeList[$this->tradingDate]['fees']['custodyFee']      = bcadd($this->tradeList[$this->tradingDate]['fees']['custodyFee'], $custodyFee, 2);
+    $this->tradeList[$this->tradingDate]['fees']['tax']             = bcadd($this->tradeList[$this->tradingDate]['fees']['tax'], $tax, 2);
+    $this->tradeList[$this->tradingDate]['fees']['incomeTax']       = bcadd($this->tradeList[$this->tradingDate]['fees']['incomeTax'], $incomeTax, 2);
+    $this->tradeList[$this->tradingDate]['fees']['otherFee']        = bcadd($this->tradeList[$this->tradingDate]['fees']['otherFee'], $otherFee, 2);
   }
 }
 ?>

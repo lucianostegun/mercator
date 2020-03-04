@@ -10,7 +10,8 @@ class ParserTask extends TaskBase {
     $parserObj = new ClearParser();
     $parserObj->parseBatch($fileList);
     
-    prexit($parserObj->getStockBalance());
+//    prexit($parserObj->getStockBalance());
+    prexit($parserObj->getTradeList());
   }
   
   private function printStockBalance($stockBalanceList, $lastTradingDay) {
