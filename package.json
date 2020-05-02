@@ -7,5 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Luciano Stegun",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.25.1",
+    "pdf-text-extract": "^1.5.0",
+    "pdf-to-text": "0.0.7",
+    "pdf2json": "^1.2.0",
+    "pdfreader": "^1.0.7",
+    "stringifystream": "^1.0.5"
+  }
 }
