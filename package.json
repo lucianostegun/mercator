@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "moment": "^2.25.1",
+    "pdf-parse": "^1.1.1",
     "pdf-text-extract": "^1.5.0",
     "pdf-to-text": "0.0.7",
     "pdf2json": "^1.2.0",
