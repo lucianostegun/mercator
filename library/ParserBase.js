@@ -11,17 +11,19 @@ class ParserBase {
   parse(documentList, options) {
     
     var self = this;
+    
+    var promise = documentList.map(async function(filePath){
+        
+        if (!filePath.match(/\.pdf/i)) {
+          return;
+        }
   
-    documentList.map(async function(filePath){
-      
-      if (!filePath.match(/\.pdf/i)) {
-        return;
-      }
+        var pages = await extract(filePath, options, 'pdftotext', function(){});
+        var lineList = pages.join('').split('\n');
+        await self.parseDocument(lineList, filePath);
+      });
 
-      var pages = await extract(filePath, options, 'pdftotext', function(){});
-      var lineList = pages.join('').split('\n');
-      await self.parseDocument(lineList, filePath);
-    });
+    return Promise.all(promise);
   }
   
   addPosition(trade) {
