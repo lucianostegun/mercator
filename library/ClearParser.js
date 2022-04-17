@@ -248,7 +248,7 @@ class ClearParser extends ParserBase {
     let balanceType  = util.purify(line.replace(/.*(C|D)$/, '$1'));
   
     let matches = line.match(/.*(1-BOVESPA) +(C|V) .*([0-9]+) +(-?[0-9\,\.]+) +(-?[0-9\,\.]+) +(C|D)/);
-    
+
     if (!matches) {
       return false;
     }
@@ -257,6 +257,10 @@ class ClearParser extends ParserBase {
     stock = stock.replace(/ +/g, ' ');
     stock = stock.replace(/^(.*) (ON|PN|N2).*/, '$1 $2');
     stock = stock.replace(/ (ED|EJ|EDJ) /, ' ');
+    
+    if (marketType.match(/OPCAO DE /)) {
+      stock = stock.replace(/^[0-9]{1,2}\/[0-9]{1,2} /, '');
+    }
 
     quantity  = util.toFloat(quantity, 2);
     value     = util.toFloat(value, 2);

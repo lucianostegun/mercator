@@ -1,2 +1,5 @@
 web/files/uploads
 web/temp
+/**/.DS_Store
+node_modules/
+uploads/
